@@ -3,11 +3,18 @@
 POST https://localhost/products
 Content-Type: application/x-www-form-urlencoded
 
-name=Example product 0&price=1200
+name=Example product 1&price=1200
+
+### Edit product
+
+POST https://localhost/products/255ffcce-c809-44cc-8296-8e50b5ecab83
+Content-Type: application/x-www-form-urlencoded
+
+name=Example product 2&price=1000
 
 ### Remove product from catalog
 
-DELETE https://localhost/products/ec0c615d-0571-4e4b-9582-59a7edaf8117
+DELETE https://localhost/products/255ffcce-c809-44cc-8296-8e50b5ecab83
 
 ### List products
 
