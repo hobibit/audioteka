@@ -13,7 +13,7 @@ class ProductRepository implements ProductProvider, ProductService
 {
     private EntityRepository $repository;
 
-    public function __construct(private EntityManagerInterface $entityManager)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
         $this->repository = $this->entityManager->getRepository(\App\Entity\Product::class);
     }

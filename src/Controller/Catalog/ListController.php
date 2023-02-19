@@ -17,7 +17,7 @@ class ListController extends AbstractController
 {
     private const MAX_PER_PAGE = 3;
 
-    public function __construct(private ProductProvider $productProvider, private ProductListBuilder $productListBuilder) { }
+    public function __construct(private readonly ProductProvider $productProvider, private readonly ProductListBuilder $productListBuilder) { }
 
     public function __invoke(Request $request): Response
     {

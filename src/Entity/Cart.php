@@ -27,15 +27,6 @@ class Cart implements \App\Service\Cart\Cart
         $this->cartProducts = new ArrayCollection();
     }
 
-    public function __get($name)
-    {
-        if ($name === 'products') {
-            return $this->getProducts();
-        }
-
-        return;
-    }
-
     public function getId(): string
     {
         return $this->id->toString();
