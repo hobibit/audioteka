@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use App\Service\Catalog\Product;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -19,14 +18,22 @@ class Cart implements \App\Service\Cart\Cart
     #[ORM\Column(type: 'uuid', nullable: false)]
     private UuidInterface $id;
 
-    #[ORM\ManyToMany(targetEntity: 'Product')]
-    #[ORM\JoinTable(name: 'cart_products')]
-    private Collection $products;
+    #[ORM\OneToMany(mappedBy: 'cart', targetEntity: CartProducts::class, cascade: ['persist'], orphanRemoval: true)]
+    private Collection $cartProducts;
 
     public function __construct(string $id)
     {
         $this->id = Uuid::fromString($id);
-        $this->products = new ArrayCollection();
+        $this->cartProducts = new ArrayCollection();
+    }
+
+    public function __get($name)
+    {
+        if ($name === 'products') {
+            return $this->getProducts();
+        }
+
+        return;
     }
 
     public function getId(): string
@@ -37,36 +44,84 @@ class Cart implements \App\Service\Cart\Cart
     public function getTotalPrice(): int
     {
         return array_reduce(
-            $this->products->toArray(),
-            static fn(int $total, Product $product): int => $total + $product->getPrice(),
+            $this->cartProducts->toArray(),
+            static fn(int $total, CartProducts $cartProduct): int => $total + $cartProduct->getProduct()?->getPrice(),
             0
         );
     }
 
-    #[Pure]
     public function isFull(): bool
     {
-        return $this->products->count() >= self::CAPACITY;
+        return $this->cartProducts->count() >= self::CAPACITY;
     }
 
     public function getProducts(): iterable
     {
-        return $this->products->getIterator();
+        $products = new ArrayCollection();
+        $cartProducts = $this->cartProducts->toArray();
+        array_walk($cartProducts, static function($cartProduct) use ($products): void {
+            $products->add($cartProduct->getProduct());
+        });
+
+        return $products;
     }
 
     #[Pure]
-    public function hasProduct(\App\Entity\Product $product): bool
+    public function hasProduct(Product $product): bool
     {
-        return $this->products->contains($product);
+        foreach ($this->cartProducts->toArray() as $cartProduct) {
+            if ($cartProduct->getProduct() === $product) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public function addProduct(\App\Entity\Product $product): void
+    public function addProduct(Product $product): void
     {
-        $this->products->add($product);
+        $this->cartProducts->add(new CartProducts($this, $product));
     }
 
-    public function removeProduct(\App\Entity\Product $product): void
+    public function removeProduct(Product $product): void
     {
-        $this->products->removeElement($product);
+        foreach ($this->cartProducts->toArray() as $cartProduct) {
+            if ($cartProduct->getProduct() === $product) {
+                $this->removeCartProduct($cartProduct);
+                break;
+            }
+        }
+    }
+
+    public function getProductsCount(): int
+    {
+        return $this->cartProducts->count();
+    }
+
+    /**
+     * @return Collection<int, CartProducts>
+     */
+    public function getCartProducts(): Collection
+    {
+        return $this->cartProducts;
+    }
+
+    public function addCartProduct(CartProducts $cartProduct): self
+    {
+        if (!$this->cartProducts->contains($cartProduct)) {
+            $this->cartProducts->add($cartProduct);
+            $cartProduct->setCart($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartProduct(CartProducts $cartProduct): self
+    {
+        if ($this->cartProducts->removeElement($cartProduct) && $cartProduct->getCart() === $this) {
+            $cartProduct->setCart(null);
+        }
+
+        return $this;
     }
 }
