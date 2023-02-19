@@ -20,7 +20,7 @@ class EditController extends AbstractController implements MessageBusAwareInterf
 {
     use MessageBusTrait;
 
-    public function __construct(private ErrorBuilder $errorBuilder)
+    public function __construct(private readonly ErrorBuilder $errorBuilder)
     {
     }
 

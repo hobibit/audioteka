@@ -19,7 +19,7 @@ class AddController extends AbstractController implements MessageBusAwareInterfa
 {
     use MessageBusTrait;
 
-    public function __construct(private ErrorBuilder $errorBuilder) { }
+    public function __construct(private readonly ErrorBuilder $errorBuilder) { }
 
     public function __invoke(Request $request): Response
     {

@@ -20,7 +20,7 @@ class AddProductController extends AbstractController implements MessageBusAware
 {
     use MessageBusTrait;
 
-    public function __construct(private ErrorBuilder $errorBuilder) { }
+    public function __construct(private readonly ErrorBuilder $errorBuilder) { }
 
     public function __invoke(Cart $cart, Product $product): Response
     {
