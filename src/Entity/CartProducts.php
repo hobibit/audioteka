@@ -15,11 +15,11 @@ class CartProducts
 
     #[ORM\ManyToOne(inversedBy: 'cartProducts')]
     #[ORM\JoinColumn(nullable: false)]
-    private Cart $cart;
+    private ?Cart $cart;
 
     #[ORM\ManyToOne(inversedBy: 'cartProducts')]
     #[ORM\JoinColumn(nullable: false)]
-    private Product $product;
+    private ?Product $product;
 
     public function __construct(Cart $cart, Product $product)
     {
