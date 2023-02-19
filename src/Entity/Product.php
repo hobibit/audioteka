@@ -43,9 +43,23 @@ class Product implements \App\Service\Catalog\Product
         return $this->name;
     }
 
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
     public function getPrice(): int
     {
         return $this->priceAmount;
+    }
+
+    public function setPrice(int $price): self
+    {
+        $this->price = $price;
+
+        return $this;
     }
 
     public function getCreatedAt(): \DateTimeInterface
